@@ -8,44 +8,32 @@ public class RPN {
         //Obter o arquivo que quer ser lido
         File file = new File("./Input.txt");
         Scanner sc = new Scanner(file);
-        
-        //Creando a pilha
-        Stack<Double>  pile = new Stack<>();
-        List<Token> tokens = new ArrayList<>();
+        List<Token> tokens = scan(sc);
 
-        System.out.println(scan(sc, pile, tokens));
+        
+        System.out.println(interpreter(tokens));
        
     }
     
-    public static Double scan(Scanner sc , Stack<Double> pile, List<Token> tokens) throws Exception{
-        Double result = null;
+    public static List<Token> scan(Scanner sc) throws Exception{
+        List<Token> tokens = new ArrayList<>();
         while (sc.hasNextLine()) {
             String input = sc.nextLine();
             if (isDouble(input))
             {
                 tokens.add(new Token(TokenType.NUM, input));
-                pile.push(Double.parseDouble(input));
             } 
             else if(isOperator(input))
             {
                 Token token = getOperatorToken(input);
                 tokens.add(token);
-                result = operate (token, pile);
             }
             else 
             {
                 throw new Exception("Error: Unexpected character: " + input);
             }
         }
-        printTokens(tokens);
-        System.out.println();
-        return result;
-    }
-
-    public static void printTokens(List<Token> tokens){
-        for (Token token : tokens){
-            System.out.println(token.toString());
-        }
+        return tokens;
     }
 
     public static boolean isDouble(String input) {
@@ -75,38 +63,53 @@ public class RPN {
             return new Token(TokenType.SLASH, input);
         }
     }
-
-    public static Double operate(Token token, Stack<Double> pile) throws Exception{
-        double y = pile.pop();
-        double x = pile.pop();
-        TokenType operator = token.type;
-
-        switch(operator){
-            case PLUS:
-                Double result = x + y;
-                pile.push(result);
-                return result;
-            case MINUS:
-                result = x - y;
-                pile.push(result);
-                return result;
-            case STAR:
-                result = x * y;
-                pile.push(result);
-                return result;
-            case SLASH:
-                if (y == 0){
-                    throw new Exception("Can't Divide by 0");
-                } else {
-                    result = x / y;
-                    pile.push(result);
-                    return result;
-                }
-            default:
-                result = null;
-                return result;
-            }
-        }
+    
+    public static Double interpreter(List<Token> tokens) throws Exception{
+        Double result = null;
+        Stack<Double>  pile = new Stack<>();
+        for (Token token : tokens){
+            System.out.println(token.toString());
+            TokenType operator = token.type;
             
-    }
+            switch(operator){
+                case PLUS:
+                    double y = pile.pop();
+                    double x = pile.pop();
+                    result = x + y;
+                    pile.push(result);
+                    break;
+                case MINUS:
+                    y = pile.pop();
+                    x = pile.pop();
+                    result = x - y;
+                    pile.push(result);
+                    break;
+                case STAR:
+                    y = pile.pop();
+                    x = pile.pop();
+                    result = x * y;
+                    pile.push(result);
+                    break;
+                case SLASH:
+                    y = pile.pop();
+                    x = pile.pop();
+                    if (y == 0){
+                        throw new Exception("Can't Divide by 0");
+                    } else {
+                        result = x / y;
+                        pile.push(result);
+                    }
+                    break;
+                case NUM:
+                    pile.push(Double.parseDouble(token.lexeme));
+                    break;
+                default:
+                    result = null;
+                    break;
+                }
 
+        }
+        System.out.println();
+        return result;
+    }
+}
