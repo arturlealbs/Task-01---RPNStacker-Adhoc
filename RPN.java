@@ -19,11 +19,11 @@ public class RPN {
         List<Token> tokens = new ArrayList<>();
         while (sc.hasNextLine()) {
             String input = sc.nextLine();
-            if (isDouble(input))
+            if (Regex.isNum(input))
             {
                 tokens.add(new Token(TokenType.NUM, input));
             } 
-            else if(isOperator(input))
+            else if(Regex.isOP(input))
             {
                 Token token = getOperatorToken(input);
                 tokens.add(token);
@@ -34,19 +34,6 @@ public class RPN {
             }
         }
         return tokens;
-    }
-
-    public static boolean isDouble(String input) {
-    try {
-        Double.parseDouble(input);
-    } catch (NumberFormatException ex) {
-        return false;
-    }
-    return true;
-    }
-
-    public static boolean isOperator(String input) {
-        return input.equals("+") || input.equals("-") || input.equals("*") || input.equals("/");
     }
 
     public static Token getOperatorToken(String input){
