@@ -7,15 +7,17 @@ public class RPN {
     public static void main(String[] args) throws Exception {
         //Obter o arquivo que quer ser lido
         File file = new File("./Input.txt");
+        HashMap<String,String> variableInterpreter = new HashMap<String,String>();
+        variableInterpreter.put("y", "10");
         Scanner sc = new Scanner(file);
-        List<Token> tokens = scan(sc);
+        List<Token> tokens = scan(sc, variableInterpreter);
 
         
         System.out.println(interpreter(tokens));
        
     }
     
-    public static List<Token> scan(Scanner sc) throws Exception{
+    public static List<Token> scan(Scanner sc, HashMap<String, String> interpreter) throws Exception{
         List<Token> tokens = new ArrayList<>();
         while (sc.hasNextLine()) {
             String input = sc.nextLine();
@@ -30,7 +32,12 @@ public class RPN {
             }
             else 
             {
-                throw new Exception("Error: Unexpected character: " + input);
+                if(interpreter.get(input) != null){
+                    tokens.add(new Token(TokenType.NUM, interpreter.get(input)));
+                } else{
+                    throw new Exception("Error: Unexpected character: " + input);
+                }
+                
             }
         }
         return tokens;
